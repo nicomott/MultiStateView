@@ -39,6 +39,10 @@ class MultiStateView
 
     var animateLayoutChanges: Boolean = false
 
+    /** False if you want to keep [contentView] invisible instead of gone during loading,
+     * for example to avoid a measure pass */
+    var contentGoneDuringLoading: Boolean = true
+
     var viewState: ViewState = ViewState.CONTENT
         set(value) {
             val previousField = field
@@ -82,6 +86,8 @@ class MultiStateView
             else -> ViewState.CONTENT
         }
         animateLayoutChanges = a.getBoolean(R.styleable.MultiStateView_msv_animateViewChanges, false)
+
+        contentGoneDuringLoading = a.getBoolean(R.styleable.MultiStateView_msv_contentGoneDuringLoading, true)
         a.recycle()
     }
 
@@ -156,7 +162,7 @@ class MultiStateView
 
         when (viewState) {
             ViewState.CONTENT -> setView(ViewState.CONTENT)
-            else -> contentView?.visibility = View.GONE
+            else -> contentView?.visibility = if (contentGoneDuringLoading) View.GONE else View.INVISIBLE
         }
     }
 
@@ -233,7 +239,7 @@ class MultiStateView
         when (viewState) {
             ViewState.LOADING -> {
                 requireNotNull(loadingView).apply {
-                    contentView?.visibility = View.GONE
+                    contentView?.visibility = if (contentGoneDuringLoading) View.GONE else View.INVISIBLE
                     errorView?.visibility = View.GONE
                     emptyView?.visibility = View.GONE
 
@@ -308,7 +314,7 @@ class MultiStateView
                 }
 
                 override fun onAnimationEnd(animation: Animator) {
-                    previousView.visibility = View.GONE
+                    previousView.visibility = if (contentGoneDuringLoading || previousView != contentView) View.GONE else View.INVISIBLE
                     val currentView = requireNotNull(getView(viewState))
                     currentView.visibility = View.VISIBLE
                     ObjectAnimator.ofFloat(currentView, "alpha", 0.0f, 1.0f).setDuration(250L).start()

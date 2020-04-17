@@ -12,6 +12,7 @@
             <enum name="loading" value="3" />
         </attr>
         <attr name="msv_animateViewChanges" format="boolean" />
+        <attr name="msv_contentGoneDuringLoading" format="boolean" />
     </declare-styleable>
 
 </resources>
